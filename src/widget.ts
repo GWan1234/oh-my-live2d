@@ -131,7 +131,7 @@ export function createWidget(options: WidgetOptions): Widget {
   }
 
   function startTipsLoop() {
-    if (!currentModelTipsData)
+    if (!currentModelTipsData || currentModelTipsData.messages.length === 0)
       return;
     stopTipsLoop();
     tipsTimer = setInterval(() => {
@@ -141,7 +141,7 @@ export function createWidget(options: WidgetOptions): Widget {
   }
 
   function launchTips() {
-    if (!currentModelTipsData)
+    if (!currentModelTipsData || currentModelTipsData.welcomeMessages.length === 0)
       return;
     const msgs = currentModelTipsData.welcomeMessages;
     welcomeTimer = setTimeout(() => {
