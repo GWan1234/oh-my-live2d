@@ -1,3 +1,10 @@
+## [0.1.1](https://github.com/hacxy/l2d-widget/compare/v0.1.0...v0.1.1) (2026-07-27)
+
+### Bug Fixes
+
+- 修复示例预览窗口背景色与 VitePress 主题不同步的问题 ([be69d3b](https://github.com/hacxy/l2d-widget/commit/be69d3b2e5ea58e6427c973b862a49bbca051864))
+- **widget:** 修复 Tips 组件空消息数组仍触发提示的问题 - 当 welcomeMessages 或 messages 设置为空数组时，不再触发开屏提示和轮询提示 ([cc0df7b](https://github.com/hacxy/l2d-widget/commit/cc0df7be756a88b694da71178aba53a1a5ecf7ea))
+
 # [0.1.0](https://github.com/hacxy/l2d-widget/compare/v0.0.2...v0.1.0) (2026-05-25)
 
 ### Bug Fixes
