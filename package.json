@@ -6,6 +6,10 @@
   "description": "",
   "author": "hacxy",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hacxy/l2d-widget.git"
+  },
   "keywords": [
     "l2d",
     "Live2D",
