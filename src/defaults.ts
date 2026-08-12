@@ -27,7 +27,7 @@ export function getDefaultItems(models: ModelOptions[]): MenuItem[] {
     icon: 'mdi:information-outline',
     label: 'About',
     onClick() {
-      window.open('https://github.com/hacxy/oh-my-live2d', '_blank', 'noopener');
+      window.open('https://github.com/hacxy/l2d-widget', '_blank', 'noopener');
     },
   });
 
