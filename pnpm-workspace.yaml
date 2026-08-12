@@ -1,0 +1,26 @@
+# pnpm 11+ 的配置统一放这里（package.json 里的 "pnpm" 字段已不再被读取）。
+# pnpm 11 移除了 onlyBuiltDependencies，改用 allowBuilds 显式批准依赖的
+# build scripts；且 strictDepBuilds 默认开启，未批准的脚本会导致 install 失败。
+# - esbuild / @parcel/watcher: postinstall 放置原生二进制，vite build 必需
+# - vue-demi: postinstall 决定它指向 vue2 还是 vue3，必须执行
+# - simple-git-hooks: 安装 git hooks
+
+# 供应链安全默认值（@hacxy/eslint-config 的 pnpm/yaml-enforce-settings 要求显式声明）。
+shellEmulator: true
+trustPolicy: no-downgrade
+
+# vitepress@1.6.4 依赖 vite ^5.4.14，解析到 vite@5.4.21：
+# - 5.x 无 CVE-2026-53571（GHSA-fx2h-pf6j-xcff）修复版，修复需 6.4.3+
+# - 且 vite@5.4.21 触发 pnpm 11 trustPolicy no-downgrade 硬拦截
+# 因此强制覆盖到修复版 6.4.3（只影响 vitepress 的 vite，不影响项目主依赖 vite 8.x）
+# sass@1.99.0 依赖 chokidar ^4.0.0（4.0.3 触发 trust downgrade）；1.102.0 改用
+# chokidar ^5.0.0，无信任问题。sass 是 vite 的 optional peer，直接覆盖即可。
+overrides:
+  sass: 1.102.0
+  vitepress>vite: 6.4.3
+
+allowBuilds:
+  '@parcel/watcher': true
+  esbuild: true
+  simple-git-hooks: true
+  vue-demi: true

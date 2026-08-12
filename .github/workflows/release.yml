@@ -1,25 +1,87 @@
-name: Release
+name: Publish
 
-permissions:
-  contents: write
-
+# Release a new version by pushing a tag: `v<version>` (e.g. v0.2.0).
+# The tag must match the `version` field in package.json (guarded below).
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
+
+permissions:
+  # npm trusted publishing (OIDC): npm exchanges the workflow's OIDC token for
+  # a short-lived publish credential — no NPM_TOKEN secret needed. Also enables
+  # automatic npm provenance attestation.
+  id-token: write
+  # changelogithub creates the GitHub Release from conventional commits.
+  contents: write
+
+# Prevent concurrent release runs from racing on the same publish / release.
+concurrency:
+  group: release
+  cancel-in-progress: false
 
 jobs:
-  release:
+  publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
+          # changelogithub needs full history to collect commits since the
+          # previous release.
           fetch-depth: 0
+
+      # pnpm version is pinned via the `packageManager` field in package.json.
+      - uses: pnpm/action-setup@v4
 
       - uses: actions/setup-node@v4
         with:
-          node-version: lts/*
+          node-version: 24
+          # 不要设置 registry-url：setup-node 会写入 _authToken=${NODE_AUTH_TOKEN}
+          # 到 .npmrc（actions/setup-node #1551），让 npm 优先走 token 而非 OIDC，
+          # 导致 trusted publishing / provenance 失效。
+          cache: pnpm
 
-      - run: npx changelogithub
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Type check
+        run: pnpm typecheck
+
+      - name: Build
+        run: pnpm build
+
+      # Fail fast if the build output is missing, so we never publish a broken
+      # package (files: ["dist"] in package.json would silently omit it).
+      - name: Verify build output
+        run: test -f dist/index.min.js && test -f dist/index.d.ts
+
+      # Fail fast if the tag and package.json version drifted apart, so we
+      # never publish a version that doesn't match the release tag.
+      - name: Verify tag matches package version
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          VERSION="$(node -p "require('./package.json').version")"
+          if [ "$TAG" != "v${VERSION}" ]; then
+            echo "::error::Tag '${TAG}' does not match package.json version 'v${VERSION}'"
+            exit 1
+          fi
+          echo "Publishing l2d-widget@${VERSION}"
+
+      # npm publish with OIDC: authentication happens automatically in the
+      # GitHub Actions OIDC environment (trusted publisher must be configured
+      # on npmjs.com for this workflow file). Provenance is generated
+      # automatically. unset NODE_AUTH_TOKEN forces the OIDC path.
+      - name: Publish to npm
+        run: |
+          unset NODE_AUTH_TOKEN
+          npm publish
+
+      # Generate the GitHub Release changelog from Conventional Commits since
+      # the last tag. Pinned for a stable result across runs.
+      - name: Create GitHub Release
+        run: npx changelogithub@15
         env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
