@@ -29,13 +29,12 @@
     "typecheck": "tsc --noEmit",
     "prepare": "simple-git-hooks",
     "commit": "git-cz",
-    "release": "bump",
+    "release": "bash scripts/release.sh",
     "docs:dev": "typedoc && vitepress dev docs",
     "docs:build": "typedoc && pnpm build && vitepress build docs",
     "docs:preview": "vitepress preview docs"
   },
   "devDependencies": {
-    "@hacxy/bump": "^0.3.2",
     "@hacxy/eslint-config": "^0.5.5",
     "@hacxy/fe": "^0.6.1",
     "@hacxy/tsconfig": "^0.1.0",
