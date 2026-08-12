@@ -24,16 +24,16 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           # changelogithub needs full history to collect commits since the
           # previous release.
           fetch-depth: 0
 
       # pnpm version is pinned via the `packageManager` field in package.json.
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 24
           # 不要设置 registry-url：setup-node 会写入 _authToken=${NODE_AUTH_TOKEN}
