@@ -10,17 +10,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 拉取代码
-        uses: actions/checkout@master
+        uses: actions/checkout@v4
 
+      # pnpm 版本由 package.json 的 packageManager 字段固定（pnpm@11.21.0），
+      # 不能用 action-setup@v2 + version: 10：最新 pnpm 10.x 要求 Node >=22.13，
+      # 在 Node 20 上会因 node:sqlite 崩溃（ERR_UNKNOWN_BUILTIN_MODULE）。
       - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 10
+        uses: pnpm/action-setup@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: pnpm
 
       - name: 安装依赖
